@@ -1,17 +1,17 @@
-package com.nosde.application.service;
+package com.nosde.memo.application.service;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.nosde.application.dto.AuthResponse;
-import com.nosde.application.dto.LoginRequest;
-import com.nosde.application.dto.RegisterRequest;
-import com.nosde.domain.model.User;
-import com.nosde.domain.repository.UserRepository;
+import com.nosde.memo.application.dto.AuthResponse;
+import com.nosde.memo.application.dto.LoginRequest;
+import com.nosde.memo.application.dto.RegisterRequest;
+import com.nosde.memo.domain.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
+import com.nosde.memo.domain.model.User;
 
 @Service
 @RequiredArgsConstructor

@@ -1,4 +1,4 @@
-package com.nosde.application.service;
+package com.nosde.memo.application.service;
 
 import java.util.Date;
 import java.util.HashMap;

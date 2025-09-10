@@ -1,4 +1,4 @@
-package com.nosde.infrastructure.security;
+package com.nosde.memo.infrastructure.security;
 
 import java.io.IOException;
 
@@ -8,8 +8,8 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.nosde.application.service.JwtService;
-import com.nosde.domain.repository.UserRepository;
+import com.nosde.memo.application.service.JwtService;
+import com.nosde.memo.domain.repository.UserRepository;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
