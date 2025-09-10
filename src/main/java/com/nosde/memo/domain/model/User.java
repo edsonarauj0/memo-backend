@@ -1,4 +1,4 @@
-package com.nosde.domain.model;
+package com.nosde.memo.domain.model;
 
 import java.util.Collection;
 import java.util.List;

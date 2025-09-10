@@ -1,4 +1,4 @@
-package com.nosde.infrastructure.security;
+package com.nosde.memo.infrastructure.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,8 +15,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.nosde.application.service.JwtService;
-import com.nosde.domain.repository.UserRepository;
+import com.nosde.memo.application.service.JwtService;
+import com.nosde.memo.domain.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 
