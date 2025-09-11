@@ -44,7 +44,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         jwt = authHeader.substring(7); // remove "Bearer "
         userEmail = jwtService.extractUsername(jwt);
 
-        // Se não tiver usuário autenticado no contexto
         if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             var user = userRepository.findByEmail(userEmail)
                     .orElse(null);
