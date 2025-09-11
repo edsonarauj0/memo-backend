@@ -9,6 +9,7 @@ import com.nosde.memo.application.dto.AuthResponse;
 import com.nosde.memo.application.dto.LoginRequest;
 import com.nosde.memo.application.dto.RegisterRequest;
 import com.nosde.memo.domain.repository.UserRepository;
+import com.nosde.memo.infrastructure.helper.ClassificacaoPerformance;
 
 import lombok.RequiredArgsConstructor;
 import com.nosde.memo.domain.model.User;
@@ -25,6 +26,15 @@ public class AuthService {
         var user = new User();
         user.setEmail(request.email());
         user.setPassword(passwordEncoder.encode(request.password()));
+        user.setNome(request.nome());
+        user.setSobrenome(request.sobrenome());
+        user.setSexo(request.sexo());
+        user.setCidade(request.cidade());
+        user.setDiasEstudos(request.diasEstudos());
+        user.setPrimeiroDiaSemana(request.primeiroDiaSemana());
+        user.setPeriodoRevisao(request.periodoRevisao());
+        user.setClassificacaoPerformance(new ClassificacaoPerformance());
+        user.setFoto(request.foto());
         user.setRole("ROLE_USER");
         userRepository.save(user);
         String token = jwtService.generateToken(user);
