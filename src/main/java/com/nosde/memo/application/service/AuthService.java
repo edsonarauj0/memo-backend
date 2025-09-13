@@ -11,8 +11,11 @@ import com.nosde.memo.application.dto.RegisterRequest;
 import com.nosde.memo.application.dto.UserDto;
 import com.nosde.memo.domain.repository.UserRepository;
 import com.nosde.memo.infrastructure.helper.ClassificacaoPerformance;
+import com.nosde.memo.infrastructure.helper.UtHelper;
 
 import lombok.RequiredArgsConstructor;
+
+import com.nosde.memo.domain.exception.UserNotFoundException;
 import com.nosde.memo.domain.model.User;
 
 @Service
@@ -44,30 +47,53 @@ public class AuthService {
     }
 
     public AuthResponse login(LoginRequest request) {
-        authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(
-                request.email(), request.password()
-            )
-        );
-        var user = userRepository.findByEmail(request.email())
-                .orElseThrow();
-        String token = jwtService.generateToken(user);
-        var dto = new UserDto(
-            user.getId(),
-            user.getEmail(),
-            user.getNome(),
-            user.getSobrenome(),
-            user.getSexo(),
-            user.getCidade(),
-            user.getEstado(),
-            user.getDiasEstudos(),
-            user.getPrimeiroDiaSemana(),
-            user.getPeriodoRevisao(),
-            user.getClassificacaoPerformance(),
-            user.getFoto(),
-            user.getRole()
-        );
-        return new AuthResponse(token, dto);
+        try {
+            if (UtHelper.isNullOrEmpty(request.email()) || !UtHelper.isValidEmail(request.email())) {
+                throw new IllegalArgumentException("Invalid email format");
+            }
+
+            if (UtHelper.isNullOrEmpty(request.password())) {
+                throw new IllegalArgumentException("Password cannot be empty");
+            }
+
+            User user = userRepository.findByEmail(request.email())
+                .orElseThrow(() -> new UserNotFoundException("User not found with email: " + request.email()));
+
+            try {
+                authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                        request.email(), 
+                        request.password()
+                    )
+                );
+            } catch (Exception e) {
+                throw new UserNotFoundException("Senha ou email incorretos");
+            }
+
+            String token = jwtService.generateToken(user);
+            var dto = new UserDto(
+                user.getId(),
+                user.getEmail(),
+                user.getNome(),
+                user.getSobrenome(),
+                user.getSexo(),
+                user.getCidade(),
+                user.getEstado(),
+                user.getDiasEstudos(),
+                user.getPrimeiroDiaSemana(),
+                user.getPeriodoRevisao(),
+                user.getClassificacaoPerformance(),
+                user.getFoto(),
+                user.getRole()
+            );
+
+            return new AuthResponse(token, dto);
+
+        } catch (IllegalArgumentException | UserNotFoundException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("An error occurred during login process", e);
+        }
     }
 
 }

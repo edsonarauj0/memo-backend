@@ -1,4 +1,4 @@
-package com.nosde.application.dto;
+package com.nosde.memo.application.dto;
 
 import java.time.LocalDateTime;
 
