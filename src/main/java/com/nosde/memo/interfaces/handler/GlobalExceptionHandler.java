@@ -1,4 +1,4 @@
-package com.nosde.interfaces.handler;
+package com.nosde.memo.interfaces.handler;
 
 import java.time.LocalDateTime;
 
@@ -8,8 +8,8 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import com.nosde.application.dto.ErrorResponse;
-import com.nosde.domain.exception.UserNotFoundException;
+import com.nosde.memo.application.dto.ErrorResponse;
+import com.nosde.memo.domain.exception.UserNotFoundException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
