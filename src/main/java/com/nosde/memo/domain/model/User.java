@@ -31,6 +31,7 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.persistence.JoinColumn;
 
 @Entity
@@ -61,7 +62,7 @@ public class User implements UserDetails {
 
     @Column(nullable = false)
     @Enumerated(EnumType.ORDINAL)
-    @NotBlank(message = "Sexo é necessário")
+    @NotNull(message = "Sexo é necessário")
     private SexoEnum sexo;
 
     @Column(nullable = false)
@@ -69,12 +70,11 @@ public class User implements UserDetails {
     private String cidade;
 
     @Column(nullable = false)
-    @NotBlank(message = "Estado é necessário")
+    @NotNull(message = "Estado é necessário")
     @Enumerated(EnumType.ORDINAL)
     private EstadoEnum estado;
 
     @Column(nullable = false)
-    @NotBlank(message = "Foto é necessária")
     private byte[] foto;
 
     @ElementCollection(fetch = FetchType.EAGER)
@@ -95,8 +95,6 @@ public class User implements UserDetails {
         joinColumns = @JoinColumn(name = "user_id")
     )
     @Column(name = "periodo_revisao", nullable = false)
-    @Min(1)
-    @Max(365)
     private Set<Integer> periodoRevisao;
 
     @Override
