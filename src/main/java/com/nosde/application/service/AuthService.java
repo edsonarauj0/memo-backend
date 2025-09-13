@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import com.nosde.application.dto.AuthResponse;
 import com.nosde.application.dto.LoginRequest;
 import com.nosde.application.dto.RegisterRequest;
+import com.nosde.domain.exception.UserNotFoundException;
 import com.nosde.domain.model.User;
 import com.nosde.domain.repository.UserRepository;
 
@@ -32,13 +33,15 @@ public class AuthService {
     }
 
     public AuthResponse login(LoginRequest request) {
+        var user = userRepository.findByEmail(request.email())
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+
         authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(
                 request.email(), request.password()
             )
         );
-        var user = userRepository.findByEmail(request.email())
-                .orElseThrow();
+
         String token = jwtService.generateToken(user);
         return new AuthResponse(token);
     }
