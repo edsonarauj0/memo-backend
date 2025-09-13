@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import com.nosde.memo.application.dto.AuthResponse;
 import com.nosde.memo.application.dto.LoginRequest;
 import com.nosde.memo.application.dto.RegisterRequest;
+import com.nosde.memo.application.dto.UserDto;
 import com.nosde.memo.domain.repository.UserRepository;
 import com.nosde.memo.infrastructure.helper.ClassificacaoPerformance;
 
@@ -30,6 +31,7 @@ public class AuthService {
         user.setSobrenome(request.sobrenome());
         user.setSexo(request.sexo());
         user.setCidade(request.cidade());
+        user.setEstado(request.estado());
         user.setDiasEstudos(request.diasEstudos());
         user.setPrimeiroDiaSemana(request.primeiroDiaSemana());
         user.setPeriodoRevisao(request.periodoRevisao());
@@ -38,7 +40,7 @@ public class AuthService {
         user.setRole("ROLE_USER");
         userRepository.save(user);
         String token = jwtService.generateToken(user);
-        return new AuthResponse(token);
+        return new AuthResponse(token, new UserDto());
     }
 
     public AuthResponse login(LoginRequest request) {
@@ -50,7 +52,22 @@ public class AuthService {
         var user = userRepository.findByEmail(request.email())
                 .orElseThrow();
         String token = jwtService.generateToken(user);
-        return new AuthResponse(token);
+        var dto = new UserDto(
+            user.getId(),
+            user.getEmail(),
+            user.getNome(),
+            user.getSobrenome(),
+            user.getSexo(),
+            user.getCidade(),
+            user.getEstado(),
+            user.getDiasEstudos(),
+            user.getPrimeiroDiaSemana(),
+            user.getPeriodoRevisao(),
+            user.getClassificacaoPerformance(),
+            user.getFoto(),
+            user.getRole()
+        );
+        return new AuthResponse(token, dto);
     }
 
 }
