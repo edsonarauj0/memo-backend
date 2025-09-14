@@ -17,9 +17,9 @@ import jakarta.persistence.Table;
 import lombok.Data;
 
 @Entity
-@Table(name = "planos_estudo")
+@Table(name = "projetos")
 @Data
-public class PlanoEstudo {
+public class Projeto {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -28,7 +28,7 @@ public class PlanoEstudo {
     private String nome;
 
     private String cargo;
-    private String observacoes;
+    private String descricao;
     private String editais;
     private String imagemUrl;
 
@@ -36,6 +36,6 @@ public class PlanoEstudo {
     @JoinColumn(name = "usuario_id", nullable = false)
     private User usuario;
 
-    @OneToMany(mappedBy = "plano", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "projeto", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Materia> materias = new ArrayList<>();
 }

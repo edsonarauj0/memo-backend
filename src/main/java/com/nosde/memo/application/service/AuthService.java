@@ -33,6 +33,7 @@ public class AuthService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final ProjetoService projetoService;
 
     public AuthResponse register(RegisterRequest request) {
         var user = new User();
@@ -49,7 +50,8 @@ public class AuthService {
         user.setClassificacaoPerformance(new ClassificacaoPerformance());
         user.setFoto(request.foto());
         user.setRole("ROLE_USER");
-        userRepository.save(user);
+        user = userRepository.save(user);
+        projetoService.criarProjetoPadrao(user);
         String token = jwtService.generateToken(user);
         return new AuthResponse(null, null, new UserDto());
     }

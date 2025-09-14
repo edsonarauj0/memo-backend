@@ -1,7 +1,9 @@
 package com.nosde.memo.application.dto;
 
 import java.time.DayOfWeek;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.nosde.memo.domain.enums.EstadoEnum;
 import com.nosde.memo.domain.enums.SexoEnum;
@@ -24,6 +26,7 @@ public class UserDto {
     private ClassificacaoPerformance classificacaoPerformance;
     private byte[] foto;
     private String role;
+    private List<ProjetoDto> projetos;
 
     public UserDto(Long id, String email2, String nome2, String sobrenome2, SexoEnum sexo2, String cidade2,
             EstadoEnum estado, Set<DayOfWeek> diasEstudos2, DayOfWeek primeiroDiaSemana2, Set<Integer> periodoRevisao2,
@@ -45,5 +48,10 @@ public class UserDto {
         this.periodoRevisao = user.getPeriodoRevisao();
         this.classificacaoPerformance = user.getClassificacaoPerformance();
         this.foto = user.getFoto();
+        this.projetos = user.getProjetos() != null ? 
+            user.getProjetos().stream()
+                .map(projeto -> new ProjetoDto(projeto))
+                .collect(Collectors.toList()) : 
+            null;
     }
 }

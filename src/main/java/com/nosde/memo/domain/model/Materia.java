@@ -23,15 +23,15 @@ public class Materia {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String nome; // Ex: "Língua Portuguesa"
+    private String nome;
 
-    private int totalTopicos;       // Quantidade cadastrada
-    private int topicosEstudados;   // Progresso
-    private int questoesResolvidas; // Estatísticas
+    private int totalTopicos;
+    private int topicosEstudados;
+    private int questoesResolvidas;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "plano_id", nullable = false)
-    private PlanoEstudo plano;
+    @JoinColumn(name = "projeto_id", nullable = false)
+    private Projeto projeto;
 
     @OneToMany(mappedBy = "materia", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Topico> topicos = new ArrayList<>();
