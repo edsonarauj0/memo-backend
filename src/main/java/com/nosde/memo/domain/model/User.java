@@ -1,6 +1,7 @@
 package com.nosde.memo.domain.model;
 
 import java.time.DayOfWeek;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -14,6 +15,7 @@ import com.nosde.memo.domain.enums.EstadoEnum;
 import com.nosde.memo.domain.enums.SexoEnum;
 import com.nosde.memo.infrastructure.helper.ClassificacaoPerformance;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
@@ -31,6 +33,7 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
 
 @Entity
 @Table(name = "users")
@@ -95,14 +98,12 @@ public class User implements UserDetails {
     @Column(name = "periodo_revisao", nullable = false)
     private Set<Integer> periodoRevisao;
 
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PlanoEstudo> planos = new ArrayList<>();
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role));
     }
 
     @Override public String getUsername() { return email; }
-    @Override public boolean isAccountNonExpired() { return true; }
-    @Override public boolean isAccountNonLocked() { return true; }
-    @Override public boolean isCredentialsNonExpired() { return true; }
-    @Override public boolean isEnabled() { return true; }
 }
