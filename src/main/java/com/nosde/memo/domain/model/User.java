@@ -99,7 +99,7 @@ public class User implements UserDetails {
     private Set<Integer> periodoRevisao;
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PlanoEstudo> planos = new ArrayList<>();
+    private List<Projeto> projetos = new ArrayList<>();
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role));
