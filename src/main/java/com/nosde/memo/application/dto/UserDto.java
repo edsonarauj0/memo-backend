@@ -5,27 +5,45 @@ import java.util.Set;
 
 import com.nosde.memo.domain.enums.EstadoEnum;
 import com.nosde.memo.domain.enums.SexoEnum;
+import com.nosde.memo.domain.model.User;
 import com.nosde.memo.infrastructure.helper.ClassificacaoPerformance;
 
 import lombok.Data;
 
 @Data
 public class UserDto {
+  
+    private String email;
+    private String nome;
+    private String sobrenome;
+    private String sexo;
+    private String cidade;
+    private Set<DayOfWeek> diasEstudos;
+    private DayOfWeek primeiroDiaSemana;
+    private Set<Integer> periodoRevisao;
+    private ClassificacaoPerformance classificacaoPerformance;
+    private byte[] foto;
+    private String role;
+
     public UserDto(Long id, String email2, String nome2, String sobrenome2, SexoEnum sexo2, String cidade2,
             EstadoEnum estado, Set<DayOfWeek> diasEstudos2, DayOfWeek primeiroDiaSemana2, Set<Integer> periodoRevisao2,
             ClassificacaoPerformance classificacaoPerformance2, byte[] foto2, String role2) {
     }
     public UserDto() {
     }
-    private String email;
-    private String nome;
-    private String sobrenome;
-    private String sexo;
-    private String cidade;
-    private int diasEstudos;
-    private int primeiroDiaSemana;
-    private int periodoRevisao;
-    private String classificacaoPerformance;
-    private String foto;
-    private String role;
+    // Add constructor to map User entity to UserDto
+    public UserDto(User user) {
+        if (user == null) return;
+        this.email = user.getEmail();
+        this.nome = user.getNome();
+        this.sobrenome = user.getSobrenome();
+        this.sexo = user.getSexo() != null ? user.getSexo().name() : null;
+        this.cidade = user.getCidade();
+        this.role = user.getRole();
+        this.diasEstudos = user.getDiasEstudos();
+        this.primeiroDiaSemana = user.getPrimeiroDiaSemana();
+        this.periodoRevisao = user.getPeriodoRevisao();
+        this.classificacaoPerformance = user.getClassificacaoPerformance();
+        this.foto = user.getFoto();
+    }
 }
