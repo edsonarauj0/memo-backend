@@ -98,6 +98,25 @@ public class AuthService {
         }
     }
 
+    public void logout(User user, String refreshToken) {
+        if (user == null) {
+            throw new IllegalArgumentException("Usuário inválido");
+        }
+
+        if (UtHelper.isNullOrEmpty(refreshToken)) {
+            throw new IllegalArgumentException("Refresh token não pode ser vazio");
+        }
+
+        RefreshToken token = refreshTokenRepository.findByToken(refreshToken)
+            .orElseThrow(() -> new BadCredentialsException("Refresh token inválido"));
+
+        if (token.getUser() == null || !token.getUser().getId().equals(user.getId())) {
+            throw new BadCredentialsException("Refresh token não pertence ao usuário autenticado");
+        }
+
+        refreshTokenRepository.delete(token);
+    }
+
     public TokenResponse refresh(String refreshToken) {
         Optional<RefreshToken> token = refreshTokenRepository.findByToken(refreshToken);
         if (!token.isPresent() || token.get().getExpiryDate().isBefore(java.time.Instant.now())) {
