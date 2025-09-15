@@ -2,6 +2,7 @@ package com.nosde.memo.interfaces.controller;
 
 import java.util.Map;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.nosde.memo.application.dto.AuthResponse;
+import com.nosde.memo.application.dto.LogoutRequest;
 import com.nosde.memo.application.dto.LoginRequest;
 import com.nosde.memo.application.dto.RegisterRequest;
 import com.nosde.memo.application.dto.UserDto;
@@ -17,10 +19,13 @@ import com.nosde.memo.application.service.AuthService;
 import com.nosde.memo.application.service.JwtService;
 import com.nosde.memo.application.service.RefreshTokenService;
 import com.nosde.memo.domain.model.RefreshToken;
+import com.nosde.memo.domain.model.User;
 import com.nosde.memo.domain.repository.RefreshTokenRepository;
 import com.nosde.memo.domain.repository.UserRepository;
 
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -45,6 +50,17 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody @Valid LoginRequest request) {
         return ResponseEntity.ok(authService.login(request));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(@RequestBody @Valid LogoutRequest request, Authentication authentication) {
+        if (authentication == null || !(authentication.getPrincipal() instanceof User user)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        authService.logout(user, request.refreshToken());
+        SecurityContextHolder.clearContext();
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/auth/refresh")
