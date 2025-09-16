@@ -74,7 +74,6 @@ public class AuthController {
         if (authentication == null || !(authentication.getPrincipal() instanceof User user)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-
         String refreshTokenValue = resolveRefreshToken(refreshTokenCookie, request);
         if (refreshTokenValue == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
