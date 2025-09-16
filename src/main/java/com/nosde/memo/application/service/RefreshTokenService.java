@@ -12,6 +12,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.format.DateTimeParseException;
 import java.util.Base64;
 import java.util.Optional;
 
@@ -24,10 +25,10 @@ public class RefreshTokenService {
 
     public RefreshTokenService(
         RefreshTokenRepository refreshTokenRepository,
-        @Value("${jwt.refresh.expiration}") Duration refreshTokenDuration
+        @Value("${jwt.refresh.expiration}") String refreshTokenDuration
     ) {
         this.refreshTokenRepository = refreshTokenRepository;
-        this.refreshTokenDuration = refreshTokenDuration;
+        this.refreshTokenDuration = parseRefreshTokenDuration(refreshTokenDuration);
     }
 
     public RefreshToken createRefreshToken(User user) {
@@ -79,5 +80,41 @@ public class RefreshTokenService {
         } catch (NoSuchAlgorithmException e) {
             throw new IllegalStateException("SHA-256 algorithm not available", e);
         }
+    }
+
+    private Duration parseRefreshTokenDuration(String rawDuration) {
+        if (rawDuration == null) {
+            throw new IllegalArgumentException("Property 'jwt.refresh.expiration' must not be null");
+        }
+
+        String sanitized = stripInlineComments(rawDuration).trim();
+        if (sanitized.isEmpty()) {
+            throw new IllegalArgumentException("Property 'jwt.refresh.expiration' must not be empty");
+        }
+
+        try {
+            return Duration.parse(sanitized);
+        } catch (DateTimeParseException ex) {
+            throw new IllegalArgumentException(
+                "Invalid ISO-8601 duration for property 'jwt.refresh.expiration': \"" + rawDuration + "\"",
+                ex
+            );
+        }
+    }
+
+    private String stripInlineComments(String value) {
+        int doubleSlashIndex = value.indexOf("//");
+        int hashIndex = value.indexOf('#');
+
+        int commentIndex = -1;
+        if (doubleSlashIndex >= 0 && hashIndex >= 0) {
+            commentIndex = Math.min(doubleSlashIndex, hashIndex);
+        } else if (doubleSlashIndex >= 0) {
+            commentIndex = doubleSlashIndex;
+        } else if (hashIndex >= 0) {
+            commentIndex = hashIndex;
+        }
+
+        return commentIndex >= 0 ? value.substring(0, commentIndex) : value;
     }
 }
