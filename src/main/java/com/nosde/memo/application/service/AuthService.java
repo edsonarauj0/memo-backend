@@ -20,6 +20,8 @@ import com.nosde.memo.infrastructure.helper.UtHelper;
 
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.transaction.annotation.Transactional;  // Add this import if not present
+
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -50,6 +52,7 @@ public class AuthService {
         return new AuthResponse(null, null, new UserDto(user));
     }
 
+    @Transactional  // Add this annotation to enable transaction for JPA operations
     public AuthResponse login(LoginRequest request) {
         try {
             if (UtHelper.isNullOrEmpty(request.email()) || !UtHelper.isValidEmail(request.email())) {
@@ -84,6 +87,7 @@ public class AuthService {
         } catch (IllegalArgumentException | UserNotFoundException e) {
             throw e;
         } catch (Exception e) {
+            System.err.println(e.getMessage());
             throw new RuntimeException("An error occurred during login process", e);
         }
     }
