@@ -1,8 +1,5 @@
 package com.nosde.memo.application.service;
 
-import java.util.Optional;
-import java.util.UUID;
-
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -14,16 +11,14 @@ import com.nosde.memo.application.dto.LoginRequest;
 import com.nosde.memo.application.dto.RegisterRequest;
 import com.nosde.memo.application.dto.TokenResponse;
 import com.nosde.memo.application.dto.UserDto;
-import com.nosde.memo.domain.repository.RefreshTokenRepository;
+import com.nosde.memo.domain.exception.UserNotFoundException;
+import com.nosde.memo.domain.model.RefreshToken;
+import com.nosde.memo.domain.model.User;
 import com.nosde.memo.domain.repository.UserRepository;
 import com.nosde.memo.infrastructure.helper.ClassificacaoPerformance;
 import com.nosde.memo.infrastructure.helper.UtHelper;
 
 import lombok.RequiredArgsConstructor;
-
-import com.nosde.memo.domain.exception.UserNotFoundException;
-import com.nosde.memo.domain.model.RefreshToken;
-import com.nosde.memo.domain.model.User;
 
 @Service
 @RequiredArgsConstructor
@@ -32,7 +27,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
-    private final RefreshTokenRepository refreshTokenRepository;
+    private final RefreshTokenService refreshTokenService;
     private final ProjetoService projetoService;
 
     public AuthResponse register(RegisterRequest request) {
@@ -52,8 +47,7 @@ public class AuthService {
         user.setRole("ROLE_USER");
         user = userRepository.save(user);
         projetoService.criarProjetoPadrao(user);
-        String token = jwtService.generateToken(user);
-        return new AuthResponse(null, null, new UserDto());
+        return new AuthResponse(null, null, new UserDto(user));
     }
 
     public AuthResponse login(LoginRequest request) {
@@ -72,7 +66,7 @@ public class AuthService {
             try {
                 authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
-                        request.email(), 
+                        request.email(),
                         request.password()
                     )
                 );
@@ -83,13 +77,9 @@ public class AuthService {
             var dto = new UserDto(user);
 
             String accessToken = jwtService.generateToken(user);
-            String refreshToken = UUID.randomUUID().toString();
-            RefreshToken refreshTokenEntity = new RefreshToken();
-            refreshTokenEntity.setUser(user);
-            refreshTokenEntity.setToken(refreshToken);
-            refreshTokenEntity.setExpiryDate(java.time.Instant.now().plusSeconds(86400));
-            refreshTokenRepository.save(refreshTokenEntity);
-            return new AuthResponse(accessToken, refreshToken, dto);
+            refreshTokenService.deleteByUser(user);
+            RefreshToken refreshToken = refreshTokenService.createRefreshToken(user);
+            return new AuthResponse(accessToken, refreshToken.getPlainToken(), dto);
 
         } catch (IllegalArgumentException | UserNotFoundException e) {
             throw e;
@@ -98,32 +88,37 @@ public class AuthService {
         }
     }
 
-    public void logout(User user, String refreshToken) {
+    public void logout(User user, String refreshTokenValue) {
         if (user == null) {
             throw new IllegalArgumentException("Usuário inválido");
         }
 
-        if (UtHelper.isNullOrEmpty(refreshToken)) {
+        if (UtHelper.isNullOrEmpty(refreshTokenValue)) {
             throw new IllegalArgumentException("Refresh token não pode ser vazio");
         }
 
-        RefreshToken token = refreshTokenRepository.findByToken(refreshToken)
+        RefreshToken token = refreshTokenService.findByTokenValue(refreshTokenValue)
             .orElseThrow(() -> new BadCredentialsException("Refresh token inválido"));
 
         if (token.getUser() == null || !token.getUser().getId().equals(user.getId())) {
             throw new BadCredentialsException("Refresh token não pertence ao usuário autenticado");
         }
 
-        refreshTokenRepository.delete(token);
+        refreshTokenService.delete(token);
     }
 
-    public TokenResponse refresh(String refreshToken) {
-        Optional<RefreshToken> token = refreshTokenRepository.findByToken(refreshToken);
-        if (!token.isPresent() || token.get().getExpiryDate().isBefore(java.time.Instant.now())) {
+    public TokenResponse refresh(String refreshTokenValue) {
+        RefreshToken token = refreshTokenService.findByTokenValue(refreshTokenValue)
+            .orElseThrow(() -> new BadCredentialsException("Refresh token inválido ou expirado"));
+
+        if (!refreshTokenService.isValid(token)) {
+            refreshTokenService.delete(token);
             throw new BadCredentialsException("Refresh token inválido ou expirado");
         }
-        String newAccessToken = jwtService.generateToken(token.get().getUser());
-        return new TokenResponse(newAccessToken, refreshToken);
+
+        RefreshToken rotatedToken = refreshTokenService.rotateToken(token);
+        String newAccessToken = jwtService.generateToken(token.getUser());
+        return new TokenResponse(newAccessToken, rotatedToken.getPlainToken());
     }
 
 }
