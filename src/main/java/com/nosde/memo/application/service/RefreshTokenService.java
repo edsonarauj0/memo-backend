@@ -66,6 +66,10 @@ public class RefreshTokenService {
         refreshTokenRepository.deleteByUser(user);
     }
 
+    public Duration getRefreshTokenDuration() {
+        return refreshTokenDuration;
+    }
+
     private String generateSecureTokenValue() {
         byte[] randomBytes = new byte[64];
         secureRandom.nextBytes(randomBytes);
