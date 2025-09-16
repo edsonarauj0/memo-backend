@@ -1,23 +1,40 @@
 package com.nosde.memo.application.service;
 
+import java.security.Key;
+import java.time.Duration;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import java.security.Key;
-import java.util.function.Function;
 
 @Service
 public class JwtService {
 
-    private static final String SECRET_KEY = "minhaChaveSuperSecretaQueDeveSerMaiorEGuardadaComSeguranca";
+    private final Key signInKey;
+    private final long jwtExpirationMs;
+
+    public JwtService(
+        @Value("${jwt.secret}") String secretKey,
+        @Value("${jwt.access.expiration}") Duration accessTokenDuration
+    ) {
+        try {
+            byte[] keyBytes = Decoders.BASE64.decode(secretKey);
+            this.signInKey = Keys.hmacShaKeyFor(keyBytes);
+        } catch (IllegalArgumentException ex) {
+            throw new IllegalStateException("JWT secret must be a Base64-encoded string", ex);
+        }
+        this.jwtExpirationMs = accessTokenDuration.toMillis();
+    }
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -37,8 +54,8 @@ public class JwtService {
                 .setClaims(extraClaims)
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24)) // 24h
-                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
+                .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
+                .signWith(signInKey, SignatureAlgorithm.HS256)
                 .compact();
     }
 
@@ -58,14 +75,9 @@ public class JwtService {
     private Claims extractAllClaims(String token) {
         return Jwts
                 .parserBuilder()
-                .setSigningKey(getSignInKey())
+                .setSigningKey(signInKey)
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
-    }
-
-    private Key getSignInKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
-        return Keys.hmacShaKeyFor(keyBytes);
     }
 }
