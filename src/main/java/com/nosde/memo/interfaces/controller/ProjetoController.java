@@ -1,0 +1,27 @@
+package com.nosde.memo.interfaces.controller;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.nosde.memo.application.dto.ProjetoDto;
+import com.nosde.memo.application.dto.ProjetoRequest;
+import com.nosde.memo.application.service.ProjetoService;
+
+import lombok.RequiredArgsConstructor;
+
+@RestController
+@RequestMapping("/api/projeto")
+@RequiredArgsConstructor
+public class ProjetoController {
+    private final ProjetoService projetoService;
+
+
+    @PostMapping
+    public ResponseEntity<ProjetoDto> createProjeto(@RequestBody ProjetoRequest projeto) {
+        return ResponseEntity.ok(projetoService.criarProjeto(projeto));
+    }
+    
+}
