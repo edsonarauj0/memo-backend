@@ -29,8 +29,7 @@ public class Projeto {
 
     private String cargo;
     private String descricao;
-    private String editais;
-    private String imagemUrl;
+    private String organizacao;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id", nullable = false)
