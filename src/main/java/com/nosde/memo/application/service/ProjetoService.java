@@ -53,4 +53,22 @@ public class ProjetoService {
 
         return new ProjetoDto(savedProjeto);
     }
+
+    public User selecionarProjeto(Long projetoId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+
+        User user = userRepository.findByEmail(username)
+            .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado: " + username));
+
+        Projeto projeto = projetoRepository.findById(projetoId)
+            .orElseThrow(() -> new ResourceNotFoundException("Projeto não encontrado: " + projetoId));
+
+        if (!projeto.getUsuario().getId().equals(user.getId())) {
+            throw new ResourceNotFoundException("Projeto não pertence ao usuário autenticado: " + projetoId);
+        }
+
+        user.setLastSelectedProjetoId(projetoId);
+        return userRepository.save(user);
+    }
 }
