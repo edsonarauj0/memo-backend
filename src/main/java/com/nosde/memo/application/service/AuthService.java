@@ -50,7 +50,7 @@ public class AuthService {
         user.setRole("ROLE_USER");
         user = userRepository.save(user);
         Projeto projetoPadrao = projetoService.criarProjetoPadrao(user);
-        user.setLastSelectedProjetoId(projetoPadrao.getId());
+        user.setProjetoSelecionadoId(projetoPadrao.getId());
         user = userRepository.save(user);
         return new AuthResponse(null, null, new UserDto(user));
     }

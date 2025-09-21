@@ -78,8 +78,8 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private byte[] foto;
 
-    @Column(name = "last_selected_projeto_id")
-    private Long lastSelectedProjetoId;
+    @Column(name = "projeto_selecionado_id")
+    private Long projetoSelecionadoId;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "user_dias_estudos", joinColumns = @JoinColumn(name = "user_id"))

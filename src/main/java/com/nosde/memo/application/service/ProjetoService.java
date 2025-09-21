@@ -68,7 +68,7 @@ public class ProjetoService {
             throw new ResourceNotFoundException("Projeto não pertence ao usuário autenticado: " + projetoId);
         }
 
-        user.setLastSelectedProjetoId(projetoId);
+        user.setProjetoSelecionadoId(projetoId);
         return userRepository.save(user);
     }
 }
