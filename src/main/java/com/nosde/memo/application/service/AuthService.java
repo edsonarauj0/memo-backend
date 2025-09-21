@@ -12,6 +12,7 @@ import com.nosde.memo.application.dto.RegisterRequest;
 import com.nosde.memo.application.dto.TokenResponse;
 import com.nosde.memo.application.dto.UserDto;
 import com.nosde.memo.domain.exception.UserNotFoundException;
+import com.nosde.memo.domain.model.Projeto;
 import com.nosde.memo.domain.model.RefreshToken;
 import com.nosde.memo.domain.model.User;
 import com.nosde.memo.domain.repository.UserRepository;
@@ -48,7 +49,9 @@ public class AuthService {
         user.setFoto(request.foto());
         user.setRole("ROLE_USER");
         user = userRepository.save(user);
-        projetoService.criarProjetoPadrao(user);
+        Projeto projetoPadrao = projetoService.criarProjetoPadrao(user);
+        user.setLastSelectedProjetoId(projetoPadrao.getId());
+        user = userRepository.save(user);
         return new AuthResponse(null, null, new UserDto(user));
     }
 

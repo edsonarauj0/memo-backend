@@ -27,6 +27,7 @@ public class UserDto {
     private byte[] foto;
     private String role;
     private List<ProjetoDto> projetos;
+    private Long lastSelectedProjetoId;
 
     public UserDto(Long id, String email2, String nome2, String sobrenome2, SexoEnum sexo2, String cidade2,
             EstadoEnum estado, Set<DayOfWeek> diasEstudos2, DayOfWeek primeiroDiaSemana2, Set<Integer> periodoRevisao2,
@@ -48,10 +49,11 @@ public class UserDto {
         this.periodoRevisao = user.getPeriodoRevisao();
         this.classificacaoPerformance = user.getClassificacaoPerformance();
         this.foto = user.getFoto();
-        this.projetos = user.getProjetos() != null ? 
+        this.lastSelectedProjetoId = user.getLastSelectedProjetoId();
+        this.projetos = user.getProjetos() != null ?
             user.getProjetos().stream()
                 .map(projeto -> new ProjetoDto(projeto))
-                .collect(Collectors.toList()) : 
+                .collect(Collectors.toList()) :
             null;
     }
 }
