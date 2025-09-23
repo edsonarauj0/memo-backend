@@ -37,4 +37,7 @@ public class Projeto {
 
     @OneToMany(mappedBy = "projeto", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Materia> materias = new ArrayList<>();
+    
+    @Column(nullable = false)
+    private Integer codigo;
 }

@@ -1,7 +1,9 @@
 package com.nosde.memo.infrastructure.security;
 
 import java.io.IOException;
+import java.util.Date;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -21,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
 
+    @Autowired
     private final JwtService jwtService;
     private final UserRepository userRepository;
 
@@ -35,7 +38,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         final String jwt;
         final String userEmail;
 
-        // Se não tiver header ou não começar com "Bearer", pula para o próximo filtro
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
@@ -59,6 +61,13 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                         new WebAuthenticationDetailsSource().buildDetails(request)
                 );
                 SecurityContextHolder.getContext().setAuthentication(authToken);
+
+                Date expiration = jwtService.extractExpiration(jwt);
+                long timeToExpire = expiration.getTime() - System.currentTimeMillis();
+                if (timeToExpire < 5 * 60 * 1000) {
+                    String newToken = jwtService.generateToken(user);
+                    response.setHeader("Authorization", "Bearer " + newToken);
+                }
             }
         }
 

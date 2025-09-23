@@ -2,6 +2,7 @@ package com.nosde.memo.application.service;
 
 import org.springframework.stereotype.Service;
 
+import com.nosde.memo.application.dto.ProjetoDetalhadoDto;
 import com.nosde.memo.application.dto.ProjetoDto;
 import com.nosde.memo.application.dto.ProjetoRequest;
 import com.nosde.memo.domain.model.Projeto;
@@ -46,6 +47,7 @@ public class ProjetoService {
         projeto.setDescricao(projetoRequest.descricao());
         projeto.setCargo(projetoRequest.cargo());
         projeto.setOrganizacao(projetoRequest.organizacao());
+        projeto.setCodigo(projetoRepository.findMaxCodigoByUsuario(user.getId()) + 1);
         projeto.setUsuario(user);
         Projeto savedProjeto = projetoRepository.save(projeto);
         user.getProjetos().add(savedProjeto);
@@ -70,5 +72,11 @@ public class ProjetoService {
 
         user.setProjetoSelecionadoId(projetoId);
         return userRepository.save(user);
+    }
+
+    public ProjetoDetalhadoDto buscarProjetoPorId(Long projetoId) {
+        Projeto projeto = projetoRepository.findById(projetoId)
+            .orElseThrow(() -> new ResourceNotFoundException("Projeto não encontrado: " + projetoId));
+        return new ProjetoDetalhadoDto(projeto);
     }
 }
