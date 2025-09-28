@@ -1,8 +1,6 @@
 package com.nosde.memo.infrastructure.security;
 
 import java.io.IOException;
-import java.util.Date;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -62,12 +60,13 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 );
                 SecurityContextHolder.getContext().setAuthentication(authToken);
 
-                Date expiration = jwtService.extractExpiration(jwt);
-                long timeToExpire = expiration.getTime() - System.currentTimeMillis();
-                if (timeToExpire < 5 * 60 * 1000) {
-                    String newToken = jwtService.generateToken(user);
-                    response.setHeader("Authorization", "Bearer " + newToken);
-                }
+                String newToken = jwtService.generateToken(user);
+                response.setHeader("Authorization", "Bearer " + newToken);
+                response.setHeader("X-Access-Token", newToken);
+                response.setHeader(
+                        "X-Access-Token-Expires-In",
+                        String.valueOf(jwtService.getAccessTokenDuration().toSeconds())
+                );
             }
         }
 

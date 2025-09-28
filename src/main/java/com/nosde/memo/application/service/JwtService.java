@@ -22,6 +22,7 @@ public class JwtService {
 
     private final Key signInKey;
     private final long jwtExpirationMs;
+    private final Duration accessTokenDuration;
 
     public JwtService(
         @Value("${jwt.secret}") String secretKey,
@@ -33,6 +34,7 @@ public class JwtService {
         } catch (IllegalArgumentException ex) {
             throw new IllegalStateException("JWT secret must be a Base64-encoded string", ex);
         }
+        this.accessTokenDuration = accessTokenDuration;
         this.jwtExpirationMs = accessTokenDuration.toMillis();
     }
 
@@ -57,6 +59,10 @@ public class JwtService {
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
                 .signWith(signInKey, SignatureAlgorithm.HS256)
                 .compact();
+    }
+
+    public Duration getAccessTokenDuration() {
+        return accessTokenDuration;
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
