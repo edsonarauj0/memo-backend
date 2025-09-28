@@ -40,6 +40,11 @@ public class SecurityConfig {
                 config.setAllowedOrigins(Arrays.asList("http://localhost:5173"));
                 config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                 config.setAllowedHeaders(Arrays.asList("*"));
+                config.setExposedHeaders(Arrays.asList(
+                    "Authorization",
+                    "X-Access-Token",
+                    "X-Access-Token-Expires-In"
+                ));
                 config.setAllowCredentials(true);
                 return config;
             }))
